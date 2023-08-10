@@ -8,7 +8,7 @@
     "migrate": "ts-node-dev ./scripts/seedDb.ts",
     "migrate-remove": "ts-node-dev ./scripts/drop.ts",
     "start": "node ./build/src/index.js",
-    "tsc": "tsc",
+    "build": "yarn && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
