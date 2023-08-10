@@ -1,0 +1,51 @@
+### Session
+GET http://localhost:4000
+
+### Session
+GET http://localhost:4000/ping
+
+### Get All Users
+GET http://localhost:4000/users
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNjkxNjI3OTE1LCJleHAiOjE2OTE2Mjc5NzV9.l9QDiyOPyfjr3p5O3ZFv2W08YA7wXfMphxs5mW12MmY"
+
+
+### Get User by id
+GET http://localhost:4000/users/1
+
+### Crate user
+POST http://localhost:4000/users
+content-type: application/json
+
+{
+	"name":"Luis",
+	"lastname":"Custom",
+	"surname":"123",
+	"password":"123456"
+}
+
+
+### Recovery user
+# POST http://localhost:4000/users/recover
+
+
+
+### Update user
+PATCH  http://localhost:4000/users/1
+content-type: application/json
+
+{
+	"id":10002,
+	"name":"luis",
+	"article":"article article",
+	"password":"123456"
+}
+
+
+### Delete user
+# DELETE   http://localhost:4000/users/2
+
+
+### Get All post users
+GET http://localhost:4000/users/posts/all
+
+

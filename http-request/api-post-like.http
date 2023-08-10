@@ -1,0 +1,6 @@
+### Get All Users
+GET http://localhost:4000/posts-like/7
+
+
+### Get All Users
+POST http://localhost:4000/posts-like/3

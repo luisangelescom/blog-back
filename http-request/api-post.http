@@ -1,0 +1,35 @@
+
+### Get All Post
+GET http://localhost:4000/posts
+
+### Get All Post-Users
+GET http://localhost:4000/posts/users
+
+
+### Get User by id
+GET http://localhost:4000/posts/2
+
+### Crate user
+POST http://localhost:4000/posts
+content-type: application/json
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywiaWF0IjoxNjkxNjgyMjE1LCJleHAiOjE2OTE3Njg2MTV9.YwzLJ4beWmGgb7x25axuDqM2bPRNJfFpuHuO6naWjSU"
+
+{
+	"id":10002,
+	"title":"New post 1231212",
+	"article":""
+}
+
+
+### Update post
+PATCH  http://localhost:4000/posts/12
+content-type: application/json
+
+{
+	"id":10002,
+	"article":"article edit"
+}
+
+
+### Delete user
+DELETE   http://localhost:4000/posts/1
