@@ -14,10 +14,10 @@ export default class LoginService {
       })
       if (response != null) {
         delete response.dataValues.password
-
+        const token = getToken(response.dataValues.id)
         return {
           status: 200,
-          data: { accessToken: getToken(response.dataValues.id) }
+          data: { accessToken: token, data: response.dataValues }
         }
       }
       return {

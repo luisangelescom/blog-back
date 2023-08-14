@@ -89,6 +89,7 @@ export interface UserLogin {
 
 export interface Token {
   accessToken: string
+  data: UserLogin
 }
 
 export interface LoginResponse {

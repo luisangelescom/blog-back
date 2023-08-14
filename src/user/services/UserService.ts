@@ -147,7 +147,13 @@ export default class UserService {
         },
         include: [
           {
-            model: PostModel
+            model: PostModel,
+            include: [
+              {
+                model: UserModel,
+                attributes: ['id', 'surname']
+              }
+            ]
           }
         ]
         // attributes: []
