@@ -145,6 +145,9 @@ export default class UserService {
         where: {
           id
         },
+        order: [
+          [PostModel, 'createdAt', 'DESC']
+        ],
         include: [
           {
             model: PostModel,
@@ -154,9 +157,9 @@ export default class UserService {
                 attributes: ['id', 'surname']
               }
             ]
+
           }
         ]
-        // attributes: []
       })
 
       return {
