@@ -1,5 +1,5 @@
 ### Get All Users
-GET http://localhost:4000/posts-description/9
+GET http://localhost:4000/posts-description/5
 
 
 ### Get All Users
