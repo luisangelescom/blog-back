@@ -1,12 +1,23 @@
-# Development stage
 FROM node:latest
-WORKDIR /usr/src/app
+WORKDIR /home/app
 COPY package*.json ./
 RUN npm install
-RUN npm build
+RUN npm run build
 COPY tsconfig.json ./
 COPY ./build ./build
+EXPOSE 3000
 CMD [ "npm", "run", "start" ]
+
+
+# Development stage
+# FROM node:latest
+# WORKDIR /usr/src/app
+# COPY package*.json ./
+# RUN npm install
+# RUN npm build
+# COPY tsconfig.json ./
+# COPY ./build ./build
+# CMD [ "npm", "run", "start" ]
 
 # # Builder stage
 # FROM development as builder
