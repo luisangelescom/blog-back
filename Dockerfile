@@ -3,7 +3,7 @@ FROM node:latest
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
-COPY tsconfig.json tsconfig.build.json ./
+COPY tsconfig.json ./
 COPY ./src ./src
 CMD [ "npm", "run", "start" ]
 
