@@ -3,8 +3,9 @@ FROM node:latest
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
+RUN npm build
 COPY tsconfig.json ./
-COPY ./src ./src
+COPY ./build ./build
 CMD [ "npm", "run", "start" ]
 
 # # Builder stage
