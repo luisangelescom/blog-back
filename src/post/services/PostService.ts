@@ -3,6 +3,7 @@ import { getIdByToken } from '../../utils/token'
 import { validateParcialPost, validatePost } from '../../validates/post-validate'
 import { ModelPost } from '../models/ModelPost'
 import { typesOfErrores } from '../../types-errors'
+import { ErrorResponse } from '../../errors/NotFound'
 
 export default class PostService {
   async getAllPost (
@@ -16,10 +17,7 @@ export default class PostService {
       if (response.length > 0) {
         return res.status(200).json(response).end()
       }
-      const error = new Error()
-      error.message = typesOfErrores['Not Found']
-      error.stack = JSON.stringify({ reason: 'No se encontraron posts' })
-      throw error
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: 'No se encontraron posts' })
     } catch (error) {
       next(error)
     }
@@ -36,10 +34,7 @@ export default class PostService {
       if (response != null) {
         return res.status(200).json(response.dataValues).end()
       }
-      const error = new Error()
-      error.message = typesOfErrores['Not Found']
-      error.stack = JSON.stringify({ reason: 'No se encontró el post' })
-      throw error
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: 'No se encontraron posts' })
     } catch (error) {
       next(error)
     }
@@ -65,10 +60,6 @@ export default class PostService {
       return res.status(201).json(response).end()
     } catch (error) {
       next(error)
-      // return {
-      //   status: 500,
-      //   data: []
-      // }
     }
   }
 
@@ -118,10 +109,6 @@ export default class PostService {
       return res.status(404).json([]).end()
     } catch (error) {
       next(error)
-      // return {
-      //   status: 500,
-      //   data: []
-      // }
     }
   }
 }

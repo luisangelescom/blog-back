@@ -3,6 +3,7 @@ import { ModelDescription } from '../models/ModelDescription'
 import { typesOfErrores } from '../../types-errors'
 import { validateDescription } from '../../validates/post-validate'
 import { getIdByToken } from '../../utils/token'
+import { ErrorResponse } from '../../errors/NotFound'
 
 export default class PostDescriptionService {
   async getAllDescription (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
@@ -13,10 +14,7 @@ export default class PostDescriptionService {
       if (response.length > 0) {
         return res.status(200).json(response).end()
       }
-      const error = new Error()
-      error.message = typesOfErrores['Not Found']
-      error.stack = JSON.stringify({ reason: 'No se encontraron descripciones' })
-      throw error
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: 'No se encontraron descripciones' })
     } catch (error) {
       next(error)
     }
@@ -26,10 +24,7 @@ export default class PostDescriptionService {
     try {
       const result = validateDescription(req.body)
       if (!result.success) {
-        const error = new Error()
-        error.message = typesOfErrores['Bad Request']
-        error.stack = result.error.message
-        throw error
+        throw new ErrorResponse(typesOfErrores['Bad Request'], result.error.message)
       }
       const userId = getIdByToken(req.headers.authorization)
       const postId = +req.params.postId
