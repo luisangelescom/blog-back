@@ -11,7 +11,8 @@ export class ModelLike {
   static async getAllPostLike (postId: number): Promise<{ rows: PostModel[], count: number }> {
     return await PostLikeModel.findAndCountAll({
       where: {
-        postId
+        postId,
+        like: 1
       },
       include: [{
         model: UserModel,
@@ -20,22 +21,18 @@ export class ModelLike {
     })
   }
 
-  // static async getPostById (id: number): Promise<PostModel | null> {
-  //   return await PostModel.findOne({
-  //     where: {
-  //       id
-  //     },
-  //     include: [
-  //       {
-  //         model: UserModel,
-  //         attributes: ['surname']
-  //       }
-  //     ]
-  //   })
-  // }
+  static async getPostById (postId: number, userId: number): Promise<PostModel | null> {
+    return await PostLikeModel.findOne({
+      where: { postId, userId }
+    })
+  }
 
-  static async createPost (postId: number, userId: number): Promise<[PostLikeModel, boolean]> {
+  static async createLike (postId: number, userId: number): Promise<[PostLikeModel, boolean]> {
     return await PostLikeModel.findOrCreate({ where: { postId, userId }, defaults: { postId, userId, like: 1 } })
+  }
+
+  static async updateLike (postId: number, userId: number, like: number): Promise<[affectedCount: number]> {
+    return await PostLikeModel.update({ like }, { where: { postId, userId } })
   }
 
   // static async updatePost (postId: number, post: PostPartial): Promise<[affectedCount: number]> {

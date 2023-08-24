@@ -12,6 +12,6 @@ const postLikeService = new PostLikeService()
 
 PostLikeController.get(`${path}/:postId`, postLikeService.getAllPostLike)
 
-PostLikeController.post(`${path}/:postId`, middleware, postLikeService.createPost)
+PostLikeController.post(`${path}/:postId`, middleware, postLikeService.createLike)
 
 export default PostLikeController
