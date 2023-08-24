@@ -1,57 +1,36 @@
-import { PostLikeResponse } from '../../types'
-import UserModel from '../../user/models/UserModel'
-import PostLikeModel from '../models/PostLikeModel'
+import { NextFunction, Request, Response } from 'express'
+import { ModelLike } from '../models/ModelLike'
+import { typesOfErrores } from '../../types-errors'
+import { getIdByToken } from '../../utils/token'
 
 export default class PostLikeService {
-  async getAllPost (postId: number): Promise<PostLikeResponse> {
+  async getAllPostLike (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const response = await PostLikeModel.findAndCountAll({
-        where: {
-          postId
-        },
-        include: [{
-          model: UserModel,
-          attributes: ['surname']
-        }]
-      })
+      const postId = +req.params.postId
+      const response = await ModelLike.getAllPostLike(postId)
 
       if (response.rows.length > 0) {
-        return {
-          status: 200,
-          data: { data: [...response.rows], count: response.count }
-        }
-      } else {
-        return {
-          status: 404,
-          data: {
-            errors: {
-              message: 'No se encontraron post'
-            }
-          }
-        }
+        return res.status(200).json(response).end()
       }
+      const error = new Error()
+      error.message = typesOfErrores['Not Found']
+      error.stack = JSON.stringify({ reason: 'No se encontraron likes' })
+      throw error
     } catch (error) {
-      return {
-        status: 500,
-        data: []
-      }
+      next(error)
     }
   }
 
-  async createPost (postId: number, userId: number): Promise<PostLikeResponse> {
+  async createPost (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      await PostLikeModel.findOrCreate({ where: { postId, userId }, defaults: { postId, userId, like: 1 } })
-      const response = await this.getAllPost(postId)
+      const userId = getIdByToken(req.headers.authorization)
+      const postId = +req.params.postId
+      await ModelLike.createPost(postId, userId)
 
-      return {
-        status: 201,
-        data: response.data
-      }
+      const response = await ModelLike.getAllPostLike(postId)
+      return res.status(200).json(response).end()
     } catch (error) {
-      return {
-        status: 500,
-        data: null
-      }
+      next(error)
     }
   }
 }

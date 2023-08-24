@@ -1,25 +1,22 @@
 import UserModel from '../../user/models/UserModel'
 import PostModel from './PostModel'
-import PostDescriptionModel from './PostDescriptionModel'
+import PostLikeModel from './PostLikeModel'
 
 // disabled eslint
-export class ModelDescription {
+export class ModelLike {
   get saludar (): string {
     return 'Hola'
   }
 
-  static async getAllPostDescription (postId: number): Promise<PostModel[]> {
-    return await PostDescriptionModel.findAll({
+  static async getAllPostLike (postId: number): Promise<{ rows: PostModel[], count: number }> {
+    return await PostLikeModel.findAndCountAll({
       where: {
         postId
       },
       include: [{
         model: UserModel,
         attributes: ['surname']
-      }],
-      order: [
-        ['createdAt', 'DESC']
-      ]
+      }]
     })
   }
 
@@ -37,8 +34,8 @@ export class ModelDescription {
   //   })
   // }
 
-  static async createPostDescription (postId: number, userId: number, description: string): Promise<PostDescriptionModel> {
-    return await PostDescriptionModel.create({ postId, userId, description })
+  static async createPost (postId: number, userId: number): Promise<[PostLikeModel, boolean]> {
+    return await PostLikeModel.findOrCreate({ where: { postId, userId }, defaults: { postId, userId, like: 1 } })
   }
 
   // static async updatePost (postId: number, post: PostPartial): Promise<[affectedCount: number]> {
