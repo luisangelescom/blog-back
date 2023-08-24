@@ -14,11 +14,19 @@ export const ErrorHandler = (err: Error, _req: Request, res: Response, _next: Ne
   const errorType = (statusError as any)[type] ?? statusError['Service Unavailable']
 
   try {
+    console.log(err.stack !== undefined && err.stack !== null)
+    if (err.stack !== undefined && err.stack !== null) {
+      console.log(err.stack)
+      console.log(JSON.parse(err.stack).reason)
+    }
     res.status(errorType.code).json({
       message: errorType.message,
       error: err.stack !== undefined && err.stack !== null ? JSON.parse(err.stack) : undefined
     })
   } catch (error) {
+    console.log('error')
+    console.log(error)
+
     res.status(errorType.code).json({
       message: errorType.message,
       error: 'Error when obtaining the stack'

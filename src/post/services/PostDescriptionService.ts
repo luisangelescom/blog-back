@@ -1,59 +1,43 @@
-import { PostDescriptionResponse } from '../../types'
-import UserModel from '../../user/models/UserModel'
-import PostDescriptionModel from '../models/PostDescriptionModel'
+import { NextFunction, Request, Response } from 'express'
+import { ModelDescription } from '../models/ModelDescription'
+import { typesOfErrores } from '../../types-errors'
+import { validateDescription } from '../../validates/post-validate'
+import { getIdByToken } from '../../utils/token'
 
 export default class PostDescriptionService {
-  async getAllDescription (postId: number): Promise<PostDescriptionResponse> {
+  async getAllDescription (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const response = await PostDescriptionModel.findAll({
-        where: {
-          postId
-        },
-        include: [{
-          model: UserModel,
-          attributes: ['surname']
-        }],
-        order: [
-          ['createdAt', 'DESC']
-        ]
-      })
+      const postId = +req.params.postId
+      const response = await ModelDescription.getAllPost(postId)
 
       if (response.length > 0) {
-        return {
-          status: 200,
-          data: response
-        }
-      } else {
-        return {
-          status: 404,
-          data: {
-            errors: {
-              message: 'No se encontraron post'
-            }
-          }
-        }
+        return res.status(200).json(response).end()
       }
+      const error = new Error()
+      error.message = typesOfErrores['Not Found']
+      error.stack = JSON.stringify({ reason: 'No se encontraron descripciones' })
+      throw error
     } catch (error) {
-      return {
-        status: 500,
-        data: []
-      }
+      next(error)
     }
   }
 
-  async createPostDescription (postId: number, userId: number, description: string): Promise<PostDescriptionResponse> {
+  async createPostDescription (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      await PostDescriptionModel.create({ postId, userId, description })
-      const response = await this.getAllDescription(postId)
-      return {
-        status: 201,
-        data: response.data
+      const result = validateDescription(req.body)
+      if (!result.success) {
+        const error = new Error()
+        error.message = typesOfErrores['Bad Request']
+        error.stack = result.error.message
+        throw error
       }
+      const userId = getIdByToken(req.headers.authorization)
+      const postId = +req.params.postId
+      await ModelDescription.createPost(postId, userId, result.data.description)
+      const response = await ModelDescription.getAllPost(postId)
+      return res.status(201).json(response).end()
     } catch (error) {
-      return {
-        status: 500,
-        data: null
-      }
+      next(error)
     }
   }
 }
