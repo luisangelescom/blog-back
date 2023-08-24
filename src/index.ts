@@ -7,6 +7,7 @@ import PostLikeController from './post/controllers/PostLikeController'
 import PostDescriptionController from './post/controllers/PostDescriptionController'
 import LoginController from './login/Controllers/LoginController'
 import env from 'dotenv'
+import { ErrorHandler, MethodsNotCreate } from './errorHandler'
 env.config()
 
 const app = express()
@@ -29,6 +30,10 @@ app.use(PostDescriptionController)
 app.get('/ping', (_req: express.Request, res: express.Response) => {
   res.send('ok')
 })
+
+app.use(MethodsNotCreate)
+
+app.use(ErrorHandler)
 
 app.listen(PORT, () => {
   console.log('Server running')
