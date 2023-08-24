@@ -5,8 +5,8 @@ import { Post, PostPartial } from '../../types'
 
 // disabled eslint
 export class ModelPost {
-  get saludar (): string {
-    return 'Hola'
+  get modelName (): string {
+    return ModelPost.name
   }
 
   static async getAllPost (userId: number = 0): Promise<PostModel[]> {

@@ -48,8 +48,6 @@ export interface User {
 export interface UserPartial {
   name?: string
   lastname?: string
-  surname?: string
-  password?: string
 }
 
 // Response PostLike

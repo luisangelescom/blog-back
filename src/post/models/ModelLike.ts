@@ -4,8 +4,8 @@ import PostLikeModel from './PostLikeModel'
 
 // disabled eslint
 export class ModelLike {
-  get saludar (): string {
-    return 'Hola'
+  get modelName (): string {
+    return ModelLike.name
   }
 
   static async getAllPostLike (postId: number): Promise<{ rows: PostModel[], count: number }> {

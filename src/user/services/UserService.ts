@@ -1,176 +1,101 @@
-import PostModel from '../../post/models/PostModel'
-import { User, UserPartial, UserResponse, UsersResponse } from '../../types'
-import UserModel from '../models/UserModel'
+import { NextFunction, Request, Response } from 'express'
+import { ModelUser } from '../models/ModelUser'
 
-import { UniqueConstraintError } from 'sequelize'
+import { ErrorResponse } from '../../errors/NotFound'
+import { typesOfErrores } from '../../types-errors'
+import { validateParcialUser, validateUser } from '../../validates/user-validate'
+import { getIdByToken } from '../../utils/token'
 
 export default class UserService {
-  async getAllUser (): Promise<UsersResponse> {
+  async getAllUser (_req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const response = await UserModel.findAll({
-        paranoid: false,
-        attributes: ['id', 'name', 'lastname', 'surname']
-      })
+      const response = await ModelUser.getAllUser()
 
       if (response.length > 0) {
-        return {
-          status: 200,
-          data: response
-        }
-      } else {
-        return {
-          status: 404,
-          data: []
-        }
+        return res.status(200).json(response).end()
       }
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: 'No se encontraron usuarios' })
     } catch (error) {
-      return {
-        status: 500,
-        data: []
-      }
+      next(error)
     }
   }
 
-  async getUserById (id: number): Promise<UserResponse> {
+  async getUserById (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const response = await UserModel.findOne({
-        where: {
-          id
-        },
-        attributes: ['id', 'name', 'lastname', 'surname']
-      })
+      const id = +req.params.userId
+      const response = await ModelUser.getUserById(id)
 
       if (response != null) {
-        return {
-          status: 200,
-          data: response.dataValues
-        }
+        return res.status(200).json(response).end()
       }
 
-      return {
-        status: 404,
-        data: null
-      }
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: `No se encontraron usuarios con el id ${id}` })
     } catch (error) {
-      return {
-        status: 500,
-        data: null
-      }
+      next(error)
     }
   }
 
-  async createUser (user: User): Promise<UserResponse> {
+  async createUser (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const response = await UserModel.create({
-        ...user
-      })
-      return {
-        status: 201,
-        data: response
+      const result = validateUser(req.body)
+      if (!result.success) {
+        throw new ErrorResponse(typesOfErrores['Bad Request'], result.error.message)
       }
+      const response = await ModelUser.createUser(result.data)
+      return res.status(201).json(response).end()
     } catch (error) {
-      if (error instanceof UniqueConstraintError) {
-        return {
-          status: 400,
-          data: {
-            errors: {
-              message: 'El correo ya esta registado'
-            }
-          }
-        }
-      }
-      return {
-        status: 500,
-        data: null
-      }
+      if (error instanceof Error && error.name === 'SequelizeUniqueConstraintError') {
+        next(new ErrorResponse(error.name, { error: 'El surname esta duplicado.' }))
+      } else { next(error) }
     }
   }
 
-  async updateUser (user: UserPartial, id: number): Promise<UserResponse> {
+  async updateUser (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const getUser = await this.getUserById(id)
-      if (getUser.status === 200) {
-        await UserModel.update(
-          { ...user },
-          {
-            where: {
-              id
-            }
-          }
-        )
+      const result = validateParcialUser(req.body)
+      if (!result.success) {
+        throw new ErrorResponse(typesOfErrores['Bad Request'], result.error.message)
+      }
+      const userId = +req.params.userId
+      const getUser = await ModelUser.getUserById(userId)
+      if (getUser !== null) {
+        await ModelUser.updateUser(result.data, userId)
 
-        return {
-          status: 200,
-          data: { ...getUser.data, ...user }
-        }
+        return res.status(200).json({ ...getUser.dataValues, ...result.data }).end()
       }
-      return getUser
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: `No se encontraron el usuario con el id ${userId}` })
     } catch (error) {
-      return {
-        status: 500,
-        data: null
-      }
+      next(error)
     }
   }
 
-  async deleteUser (id: number): Promise<UserResponse> {
+  async deleteUser (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const getUser = await this.getUserById(id)
-      if (getUser.status === 200) {
-        await UserModel.destroy({
-          where: {
-            id
-          }
-        })
-
-        return {
-          status: 200,
-          data: getUser.data
-        }
+      const id = +req.params.userId
+      const getUser = await ModelUser.getUserById(id)
+      if (getUser !== null) {
+        await ModelUser.deleteUser(id)
+        return res.status(200).json(getUser).end()
       }
-      return getUser
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: `No se encontraron el usuario con el id ${id}` })
     } catch (error) {
-      return {
-        status: 500,
-        data: null
-      }
+      next(error)
     }
   }
 
   // Post User
 
-  async getPostByUser (id: number): Promise<UserResponse> {
+  async getPostByUser (req: Request, res: Response, next: NextFunction): Promise<Response<any, Record<string, any>> | undefined> {
     try {
-      const posts = await UserModel.findOne({
-        where: {
-          id
-        },
-        order: [
-          [PostModel, 'createdAt', 'DESC']
-        ],
-        include: [
-          {
-            model: PostModel,
-            include: [
-              {
-                model: UserModel,
-                attributes: ['id', 'surname']
-              }
-            ]
-
-          }
-        ]
-      })
-
-      return {
-        status: 200,
-        data: posts
+      const id = getIdByToken(req.headers.authorization)
+      const posts = await ModelUser.getPostByUser(id)
+      if (posts !== null) {
+        return res.status(200).json(posts).end()
       }
+
+      throw new ErrorResponse(typesOfErrores['Not Found'], { error: `No se encontraron el usuario con el id ${id}` })
     } catch (error) {
-      return {
-        status: 500,
-        data: null
-      }
+      next(error)
     }
   }
 }

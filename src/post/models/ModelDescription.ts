@@ -4,8 +4,8 @@ import PostDescriptionModel from './PostDescriptionModel'
 
 // disabled eslint
 export class ModelDescription {
-  get saludar (): string {
-    return 'Hola'
+  get modelName (): string {
+    return ModelDescription.name
   }
 
   static async getAllPostDescription (postId: number): Promise<PostModel[]> {

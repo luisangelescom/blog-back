@@ -29,10 +29,25 @@ const schema = z.object({
 
 })
 
+const schemaUpdate = z.object({
+  name: z.string({
+    required_error: 'El valor es requerido',
+    invalid_type_error: 'El valor debe de ser un string'
+  }).nonempty({
+    message: 'Ingrese un valor'
+  }),
+  lastname: z.string({
+    required_error: 'El valor es requerido',
+    invalid_type_error: 'El valor debe de ser un string'
+  }).nonempty({
+    message: 'Ingrese un valor'
+  })
+})
+
 export const validateUser = (obj: User): SafeParseReturnType<User, User> => schema.safeParse(obj)
 
 // export const validateParcialPost = (obj: Post): SafeParseReturnType<PostPartial, PostPartial> =>
 //   schema.partial().safeParse(obj)
 
 export const validateParcialUser = (obj: Post): SafeParseReturnType<UserPartial, UserPartial> =>
-  schema.partial().safeParse(obj)
+  schemaUpdate.partial().safeParse(obj)
